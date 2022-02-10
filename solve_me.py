@@ -1,3 +1,4 @@
+from os import curdir
 class TasksCommand:
     TASKS_FILE = "tasks.txt"
     COMPLETED_TASKS_FILE = "completed.txt"
@@ -63,16 +64,49 @@ $ python tasks.py report # Statistics"""
         )
 
     def add(self, args):
-        pass
+        if(int(args[0]) in self.current_items):
+            task_to_add = {int(args[0]):args[1]}
+            updated_key = int(args[0]) + 1
+            task_to_update_key = [updated_key, self.current_items[int(args[0])]]
+
+            self.current_items.update(task_to_add)
+            self.write_current()
+            print("Added task: " + f"\"{args[1]}\" with priority {args[0]}")
+            self.add(task_to_update_key)
+        else:
+            self.current_items.update({int(args[0]): args[1]})
+            self.write_current()
+            print("Added task: " + f"\"{args[1]}\" with priority {args[0]}")
 
     def done(self, args):
+        if(int(args[0]) in self.current_items):
+            self.completed_items.append(self.current_items.pop(int(args[0])))
+            self.write_completed()
+            self.write_current()
+            print("Marked item as done.")
+        else:
+            print(f"Error: no incomplete item with priority {args[0]} exists.")
         pass
 
     def delete(self, args):
+        if(int(args[0]) in self.current_items):
+            self.current_items.pop(int(args[0]))
+            self.write_current()
+            print("Deleted item " + f"with priority {args[0]}")
+        else:
+            print(f"Error: item with priority {args[0]} does not exist. Nothing deleted.")
         pass
-
+        
     def ls(self):
+        for index, key in enumerate(sorted(self.current_items.keys())):
+            print(f"{index+1}. {self.current_items[key]} [{key}]")
         pass
 
     def report(self):
+        print(f"Pending : {len(self.current_items)}")
+        self.ls()
+
+        print(f"\nCompleted : {len(self.completed_items)}")
+        for index, item in enumerate(self.completed_items):
+            print(f"{index + 1}. {item}")
         pass
